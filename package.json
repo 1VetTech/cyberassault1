@@ -1,0 +1,17 @@
+{
+  "name": "1vettech-cyber-tower-facility-alpha",
+  "version": "1.0.0",
+  "description": "1VETTECH Cyber Tower - Facility Alpha MVP",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": [
+    "game",
+    "cybersecurity",
+    "veterans",
+    "threejs",
+    "1vettech"
+  ],
+  "author": "1VETTECH LLC",
+  "license": "UNLICENSED"
+}

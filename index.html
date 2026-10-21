@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#06111c">
+  <title>1VETTECH Cyber Tower — Facility Alpha MVP</title>
+  <link rel="stylesheet" href="src/styles.css">
+  <!-- Three.js provides the full 3D scene. A lightweight canvas fallback remains playable if the module CDN is unavailable. -->
+  <script type="module" id="gameBootstrap">
+    try {
+      window.THREE = await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');
+    } catch (error) {
+      window.__THREE_CDN_FAILED__ = true;
+      console.warn('Three.js module unavailable; using the canvas renderer.', error);
+    }
+    /* GAME_SOURCE */
+  </script>
+</head>
+<body>
+  <div id="gameRoot">
+    <div id="renderHost" aria-label="Cyber Tower 3D game scene"></div>
+    <canvas id="fallbackCanvas" aria-label="Isometric gameplay fallback"></canvas>
+    <div class="scanlines" aria-hidden="true"></div>
+
+    <!-- Operator select / mission deployment -->
+    <section id="selectScreen" class="screen-select">
+      <header class="select-header">
+        <div class="brand-lockup"><div class="brand-mark"><span>1V</span><b>T</b></div><div><div class="brand-name"><span>1VET</span>TECH</div><div class="tagline">PROTECTING DATA. EMPOWERING VETERANS.</div></div></div>
+        <div class="loadout-chip"><small>CYBER LOADOUT</small><strong>FACILITY ALPHA</strong><span>SECURE <i>/</i> DEFEND <i>/</i> EXTRACT</span></div>
+      </header>
+
+      <div class="select-grid">
+        <aside class="select-roster panel">
+          <div class="panel-eyebrow">MISSION TEAM <span>01 / ALPHA</span></div>
+          <button class="operator-option selected" data-operator="operator">
+            <img src="assets/operator.webp" alt="Operator JJ portrait"><span class="option-copy"><b>OPERATOR · JJ</b><small>DEFAULT LEADER · 100 HP</small><em>Balanced tactical lead</em></span><span class="select-dot"></span>
+          </button>
+          <button class="operator-option" data-operator="bubba">
+            <img src="assets/bubba.webp" alt="Bubba portrait"><span class="option-copy"><b>BUBBA</b><small>HEAVY ASSAULT · 100 HP</small><em>Rocket launcher / direct push</em></span><span class="select-dot"></span>
+          </button>
+          <button class="operator-option" data-operator="lilbit">
+            <img src="assets/lilbit.webp" alt="Lil Bit portrait"><span class="option-copy"><b>LIL BIT</b><small>TACTICAL SPECIALIST · 100 HP</small><em>High ground / precision support</em></span><span class="select-dot"></span>
+          </button>
+          <div class="roster-divider"></div>
+          <button id="gideonToggle" class="operator-option compact ally-toggle" aria-pressed="true">
+            <img src="assets/gideon.webp" alt="Gideon portrait"><span class="option-copy"><b>GIDEON · ALLY</b><small>HELMETED OPERATOR</small><em>Deploy as AI support</em></span><span id="gideonToggleLabel" class="ally-state">ON</span>
+          </button>
+          <div class="operator-option compact locked-option" aria-disabled="true">
+            <span class="lock-portrait">▣</span><span class="option-copy"><b>COMING SOON</b><small>LOCKED OPERATOR SLOT</small><em>Future campaign content</em></span><span class="lock-mark">⌑</span>
+          </div>
+          <div class="team-motto">“Different roles. One mission.”</div>
+        </aside>
+
+        <section class="operator-preview panel">
+          <div class="preview-status"><span class="live-pip"></span> OPERATOR PROFILE <span class="preview-id">ALPHA-07</span></div>
+          <div class="preview-stage">
+            <canvas id="previewCanvas" aria-label="3D operator preview"></canvas>
+            <div id="previewFallback" class="preview-fallback"><img id="previewPortrait" src="assets/operator.webp" alt="Selected operator"><div class="preview-orbit"></div></div>
+            <div class="preview-name"><h1 id="previewName">OPERATOR <span>JJ</span></h1><p id="previewRole">TACTICAL TEAM LEADER</p><blockquote id="previewQuote">“Protect the team. Protect the network.”</blockquote></div>
+            <div class="preview-stats"><div><small>INTEGRITY</small><b>100 <span>/ 100</span></b></div><div><small>CLASS</small><b id="previewClass">BALANCED</b></div><div><small>STATUS</small><b class="cyan-text">READY</b></div></div>
+          </div>
+          <div class="preview-bio"><div class="panel-eyebrow">FIELD PROFILE</div><p id="previewBio">JJ leads the squad through Facility Alpha, balancing mobility, accurate fire, and tactical awareness.</p></div>
+          <div class="selection-ability-row" id="previewAbilities"><span>TACTICAL AWARENESS</span><span>WEAPON FLEXIBILITY</span><span>TEAM COMMAND</span></div>
+        </section>
+
+        <aside class="loadout-column">
+          <section class="panel loadout-panel"><div class="panel-heading"><span>WEAPON LOADOUT</span><small>KEYS 1–3</small></div>
+            <div class="loadout-item"><span class="weapon-number">1</span><span class="weapon-icon pistol-icon">⌁</span><span><b>LASER</b><small>Fast · 2 damage per hit</small></span><kbd>1</kbd></div>
+            <div class="loadout-item"><span class="weapon-number">2</span><span class="weapon-icon rifle-icon">╱╲</span><span><b>SPREAD SHOT</b><small>Wide burst · 4 damage per hit</small></span><kbd>2</kbd></div>
+            <div class="loadout-item"><span class="weapon-number">3</span><span class="weapon-icon grenade-icon">⬡</span><span><b>ROCKET LAUNCHER</b><small>Splash · 8 damage per hit</small></span><kbd>3</kbd></div>
+          </section>
+          <section class="panel ability-panel"><div class="panel-heading"><span id="abilityTitle">TEAM CAPABILITIES</span><small>ACTIVE KIT</small></div>
+            <div class="ability-row"><span class="ability-symbol">↯</span><div><b id="abilityOneTitle">TACTICAL DASH</b><small id="abilityOneDesc">Burst of speed to reposition.</small></div></div>
+            <div class="ability-row"><span class="ability-symbol">✚</span><div><b id="abilityTwoTitle">FIELD REPAIR</b><small id="abilityTwoDesc">Restore a teammate near you.</small></div></div>
+            <div class="ability-row"><span class="ability-symbol">✳</span><div><b id="abilityThreeTitle">EMP GRENADE</b><small id="abilityThreeDesc">Disable drones and shields.</small></div></div>
+          </section>
+          <div class="deploy-card"><div><small>MISSION 01</small><b>RESTORE THE NETWORK CORE</b><p>Clear the facility, locate the terminal, and reach extraction.</p></div><button id="deployBtn" class="primary-button">DEPLOY TO FACILITY <span>→</span></button></div>
+        </aside>
+      </div>
+      <footer class="select-footer"><div><span class="keycap">W A S D</span> MOVE / DRIVE <span class="keycap">SPACE</span> JUMP <span class="keycap">E</span> INTERACT / VEHICLE <span class="keycap">1–3</span> WEAPONS <span class="keycap">F / J</span> FIRE</div><div class="footer-brand">1VETTECH <span>CYBER TOWER</span></div></footer>
+    </section>
+
+    <!-- Mission HUD -->
+    <section id="gameHUD" class="hidden" aria-label="Game interface">
+      <div class="hud-top-left glass-panel">
+        <div class="hud-brand"><span class="brand-mark small"><span>1V</span><b>T</b></span><div><b>1VETTECH</b><small>FACILITY ALPHA</small></div></div>
+        <div id="squadCards" class="squad-cards"></div>
+      </div>
+      <div class="weapon-bar glass-panel"><div class="weapon-bar-label">WEAPON SELECT <span>1—3</span></div><div id="weaponButtons" class="weapon-buttons"></div></div>
+      <div class="objective-stack"><div class="objectives glass-panel"><div class="hud-panel-title"><span class="objective-ring">◎</span><span id="missionLevelLabel">LEVEL 01 / 06</span></div><strong>MISSION 01 / 06 · VEHICLE BAY BREACH</strong><div id="missionProgress" class="mission-progress" aria-label="Campaign levels"><i class="active"></i><i></i><i></i><i></i><i></i><i></i></div><small id="missionBrief" class="mission-brief">Clear the vehicle bay and recover the access route.</small><label id="objClear"><i>○</i> Clear the facility</label><label id="objTerminal"><i>○</i> Find the access terminal</label><label id="objCore"><i>○</i> Reach the Network Core</label></div><div class="objectives secondary glass-panel"><div class="hud-panel-title"><span class="secondary-icon">✦</span><span>SECONDARY OBJECTIVES</span></div><label id="objSector"><i>○</i> Explore sector G4</label><label id="objLostTech"><i>○</i> Find lost tech</label></div></div>
+      <div class="weapon-status glass-panel"><div class="ammo-symbol" id="ammoSymbol">⌁</div><div class="ammo-copy"><small id="ammoWeapon">LASER</small><b id="ammoCount">∞</b><span id="ammoHint">2 DAMAGE PER HIT · FAST</span></div><div class="splash-icon" id="splashIcon">✹<small>SPLASH</small></div></div>
+      <div class="minimap-panel glass-panel"><div class="minimap-title">TACTICAL MAP <span>N ↑</span></div><canvas id="minimap" width="180" height="180" aria-label="Tactical minimap"></canvas></div>
+      <div class="controls-bar glass-panel"><span><kbd>W A S D</kbd> Move / drive</span><span><kbd>SPACE</kbd> Jump</span><span><kbd>E</kbd> Interact / tank</span><span><kbd>1–3</kbd> Weapons</span><span><kbd>F / J</kbd> Fire</span><span><kbd>TAB</kbd> Switch operator</span><span><kbd>Q</kbd> Dash</span><span><kbd>G</kbd> EMP</span></div>
+      <div id="interactionPrompt" class="interaction-prompt hidden"></div>
+      <div id="toast" class="toast hidden"></div>
+      <div id="resultOverlay" class="result-overlay hidden"><div class="result-card glass-panel"><div class="live-pip"></div><p class="result-kicker">FACILITY ALPHA // MISSION REPORT</p><h2 id="resultTitle">NETWORK CORE RESTORED</h2><p id="resultText">The squad secured the access terminal and restored the Network Core.</p><div id="resultStats" class="result-stats"></div><button id="replayBtn" class="primary-button">REPLAY MISSION ↻</button><button id="returnSelectBtn" class="secondary-button">RETURN TO OPERATOR SELECT</button></div></div>
+    </section>
+  </div>
+</body>
+</html>
